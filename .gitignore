@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+
+# Envs
+.env
+.env.*
+
+# Node/build (if any future web assets)
+node_modules/
+
+# Docker
+*.log
+*.pid
+
+# Project output
+output/
+temp/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
