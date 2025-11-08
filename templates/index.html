@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local BigMotion - AI Video Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status-message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .video-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .video-card video {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .video-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .video-date {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .download-btn {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+        
+        .download-btn:hover {
+            background: #5568d3;
+        }
+        
+        .tips {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        
+        .tips h3 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        
+        .tips ul {
+            padding-left: 20px;
+        }
+        
+        .tips li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 Local BigMotion</h1>
+            <p class="subtitle">AI-Powered Faceless Video Generator</p>
+        </header>
+        
+        <div class="main-card">
+            <h2 style="margin-bottom: 30px; color: #333;">Create Your Video</h2>
+            
+            <form id="videoForm">
+                <div class="form-group">
+                    <label for="topic">Video Topic *</label>
+                    <input 
+                        type="text" 
+                        id="topic" 
+                        name="topic" 
+                        placeholder="e.g., 'The fascinating history of ancient Rome' or '5 mind-blowing facts about space'"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="duration">Duration (seconds)</label>
+                    <input 
+                        type="number" 
+                        id="duration" 
+                        name="duration" 
+                        value="60" 
+                        min="15" 
+                        max="90"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="voice">Voice Style</label>
+                    <select id="voice" name="voice">
+                        <option value="default">Default</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="music_style">Background Music Style</label>
+                    <select id="music_style" name="music_style">
+                        <option value="upbeat">Upbeat</option>
+                        <option value="calm">Calm</option>
+                        <option value="epic">Epic</option>
+                        <option value="none">No Music</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn" id="generateBtn">
+                    Generate Video ✨
+                </button>
+            </form>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Generating your video... This may take 1-2 minutes.</p>
+            </div>
+            
+            <div class="status-message" id="statusMessage"></div>
+            
+            <div class="tips">
+                <h3>💡 Tips for Great Videos</h3>
+                <ul>
+                    <li>Be specific with your topic - "5 surprising facts about coffee" works better than just "coffee"</li>
+                    <li>Keep it between 30-60 seconds for maximum engagement</li>
+                    <li>Use topics that are trending or evergreen</li>
+                    <li>Think about what would make YOU stop scrolling</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="main-card">
+            <h2 style="margin-bottom: 20px; color: #333;">Your Videos</h2>
+            <div class="video-grid" id="videoGrid">
+                <p style="color: #666;">No videos yet. Generate your first video above!</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('videoForm');
+        const loading = document.getElementById('loading');
+        const statusMessage = document.getElementById('statusMessage');
+        const generateBtn = document.getElementById('generateBtn');
+        const videoGrid = document.getElementById('videoGrid');
+        
+        // Load existing videos on page load
+        loadVideos();
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                topic: document.getElementById('topic').value,
+                duration: parseInt(document.getElementById('duration').value),
+                voice: document.getElementById('voice').value,
+                music_style: document.getElementById('music_style').value
+            };
+            
+            // Show loading, hide status
+            loading.style.display = 'block';
+            statusMessage.style.display = 'none';
+            generateBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage('success', '✅ ' + result.message);
+                    form.reset();
+                    
+                    // Reload videos
+                    setTimeout(loadVideos, 1000);
+                } else {
+                    showMessage('error', '❌ Error: ' + result.error);
+                }
+            } catch (error) {
+                showMessage('error', '❌ Failed to generate video: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                generateBtn.disabled = false;
+            }
+        });
+        
+        function showMessage(type, message) {
+            statusMessage.className = 'status-message ' + type;
+            statusMessage.textContent = message;
+            statusMessage.style.display = 'block';
+        }
+        
+        async function loadVideos() {
+            try {
+                const response = await fetch('/api/videos');
+                const data = await response.json();
+                
+                if (data.videos && data.videos.length > 0) {
+                    videoGrid.innerHTML = data.videos.map(video => `
+                        <div class="video-card">
+                            <video controls>
+                                <source src="/api/videos/${video.id}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="video-info">
+                                <span class="video-date">${new Date(video.created * 1000).toLocaleString()}</span>
+                                <a href="/api/videos/${video.id}" download class="download-btn">Download</a>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    videoGrid.innerHTML = '<p style="color: #666;">No videos yet. Generate your first video above!</p>';
+                }
+            } catch (error) {
+                console.error('Error loading videos:', error);
+            }
+        }
+    </script>
+</body>
+</html>
