@@ -6,16 +6,14 @@ services:
       - ollama:/root/.ollama
     environment:
       - OLLAMA_KEEP_ALIVE=24h
-      - OLLAMA_LOAD_TIMEOUT=15m   # helps with large first loads
     ports:
       - "11434:11434"
     healthcheck:
-      # use binary that always exists in the image
-      test: ["CMD", "ollama", "list"]
+      test: ["CMD", "bash", "-lc", "curl -sSf http://127.0.0.1:11434/api/tags > /dev/null"]
       interval: 10s
       timeout: 5s
       retries: 20
-      start_period: 10s
+      start_period: 30s
 
   web:
     build: .
@@ -23,6 +21,7 @@ services:
     env_file:
       - .env
     environment:
+      # Pass through envs to Flask/app
       - FLASK_RUN_HOST=${APP_HOST:-0.0.0.0}
       - FLASK_RUN_PORT=${APP_PORT:-5000}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -37,13 +36,6 @@ services:
     depends_on:
       ollama:
         condition: service_healthy
-    # optional but helpful
-    healthcheck:
-      test: ["CMD", "bash", "-lc", "wget -qO- http://127.0.0.1:5000/health >/dev/null || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 20
-      start_period: 10s
 
 volumes:
   ollama:

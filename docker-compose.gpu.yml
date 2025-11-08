@@ -1,15 +1,7 @@
-version: "3.9"
-
 services:
   ollama:
     environment:
-      - OLLAMA_KEEP_ALIVE=24h
       - OLLAMA_GPU=1
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: ["gpu"]
-    # For old Docker Engine you might need:
-    # runtime: nvidia
-
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    runtime: nvidia

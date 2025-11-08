@@ -3,6 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- somewhere near the top of <body> -->
+<div id="error" style="display:none; padding:10px; border:1px solid #f99; background:#fee; margin:10px 0;"></div>
+
+<script>
+function showError(msg){
+  const e = document.getElementById('error');
+  e.textContent = msg || 'Something went wrong.';
+  e.style.display = 'block';
+}
+</script>
     <title>Local BigMotion - AI Video Generator</title>
     <style>
         * {

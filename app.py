@@ -28,16 +28,6 @@ TEMP_DIR = Path("/app/temp")
 TEMP_DIR.mkdir(exist_ok=True)
 app = Flask(__name__)
 
-<div id="error" style="display:none; padding:10px; border:1px solid #f99; background:#fee; margin:10px 0;"></div>
-
-<script>
-function showError(msg){
-  const e = document.getElementById('error');
-  e.textContent = msg || 'Something went wrong.';
-  e.style.display = 'block';
-}
-</script>
-
 
 @app.get("/health")
 def health():
@@ -66,12 +56,6 @@ def generate_video():
         # Generate the video
         video_path = video_gen.create_video(
             topic=topic,
-	    width=VIDEO_WIDTH,
-	    height=VIDEO_HEIGHT,
-            fps=VIDEO_FPS,
-"""            ollama_host=OLLAMA_HOST, 
-            model=OLLAMA_MODEL, 
-            tts_voice=TTS_VOICE, """
             duration=duration,
             voice=voice,
             music_style=music_style
