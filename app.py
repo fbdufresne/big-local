@@ -4,6 +4,18 @@ from flask import Flask, render_template, request, jsonify, send_file
 from pathlib import Path
 import tempfile
 from video_generator import VideoGenerator
+import logging
+
+VIDEO_WIDTH = int(os.getenv("VIDEO_WIDTH", "1080"))
+VIDEO_HEIGHT = int(os.getenv("VIDEO_HEIGHT", "1920"))
+VIDEO_FPS = int(os.getenv("VIDEO_FPS", "30"))
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://ollama:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2")
+TTS_VOICE = os.getenv("TTS_VOICE", "en")
+
+logging.basicConfig(level=getattr(logging, os.getenv("LOG_LEVEL", "INFO")))
+
+
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max
@@ -14,6 +26,23 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 
 TEMP_DIR = Path("/app/temp")
 TEMP_DIR.mkdir(exist_ok=True)
+app = Flask(__name__)
+
+<div id="error" style="display:none; padding:10px; border:1px solid #f99; background:#fee; margin:10px 0;"></div>
+
+<script>
+function showError(msg){
+  const e = document.getElementById('error');
+  e.textContent = msg || 'Something went wrong.';
+  e.style.display = 'block';
+}
+</script>
+
+
+@app.get("/health")
+def health():
+    return jsonify({"status": "ok"}), 200
+
 
 video_gen = VideoGenerator()
 
@@ -37,6 +66,12 @@ def generate_video():
         # Generate the video
         video_path = video_gen.create_video(
             topic=topic,
+	    width=VIDEO_WIDTH,
+	    height=VIDEO_HEIGHT,
+            fps=VIDEO_FPS,
+"""            ollama_host=OLLAMA_HOST, 
+            model=OLLAMA_MODEL, 
+            tts_voice=TTS_VOICE, """
             duration=duration,
             voice=voice,
             music_style=music_style

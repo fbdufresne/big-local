@@ -1,6 +1,7 @@
-Flask==3.0.0
+Flask==3.0.3
 moviepy==1.0.3
-gTTS==2.5.0
-Pillow==10.3.0
+gTTS==2.5.3
+requests==2.32.3
+Pillow==10.4.0
 numpy==1.26.4
-requests==2.31.0
+tqdm==4.66.5
